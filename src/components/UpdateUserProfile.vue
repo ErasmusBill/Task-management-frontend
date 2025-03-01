@@ -201,6 +201,7 @@
   import { ref, onMounted, computed } from 'vue';
   import axios from 'axios';
   import { useRouter } from 'vue-router';
+  import { API_BASE_URL } from './urls';
   
   const router = useRouter();
   
@@ -243,7 +244,7 @@
         throw new Error('User ID is undefined. Please log in again.');
       }
   
-      const response = await axios.get(`http://127.0.0.1:8000/api/update-profile/${userId.value}/`, {
+      const response = await axios.get(`${API_BASE_URL}/update-profile/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access_token')}`
         }
@@ -261,7 +262,7 @@
       originalData.value = { ...profileData.value };
     } catch (error) {
       console.error('Error fetching profile data:', error);
-      message.value = 'Failed to load profile data. Please try again.';
+      message.value = 'Failed to load profile data. Pl#ease try again.';
       isError.value = true;
     } finally {
       isLoading.value = false;
@@ -282,7 +283,7 @@
       }
   
       const response = await axios.put(
-        `http://127.0.0.1:8000/api/update-profile/${userId.value}/`,
+        `${API_BASE_URL}/update-profile/`,
         dataToSend,
         {
           headers: {

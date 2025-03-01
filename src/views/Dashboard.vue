@@ -155,6 +155,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { API_BASE_URL } from '@/components/urls';
 
 const router = useRouter();
 
@@ -184,7 +185,7 @@ const fetchTasks = async (page = 1) => {
   error.value = null;
 
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/taskservices/task-list/?page=${page}`);
+    const response = await axios.get(`${API_BASE_URL}/taskservices/task-list/?page=${page}`);
     tasks.value = response.data.results || [];
     totalPages.value = Math.ceil(response.data.count / 10); // Assuming you have a count field
   } catch (err) {
@@ -198,7 +199,7 @@ const fetchTasks = async (page = 1) => {
 // Load users data from the DRF API
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/list-users/');
+    const response = await axios.get(`${API_BASE_URL}/list-users/`);
     users.value = response.data.results || []; // Adjust based on your API response structure
   } catch (err) {
     console.error('Error fetching users:', err);
@@ -217,7 +218,7 @@ const searchTasks = async () => {
   error.value = null;
 
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/taskservices/search-task?title=${searchQuery.value}`);
+    const response = await axios.get(`${API_BASE_URL}/taskservices/search-task?title=${searchQuery.value}`);
     tasks.value = response.data.results || [];
     totalPages.value = 1; // Reset to 1 page if searching
     currentPage.value = 1; // Reset current page
@@ -247,7 +248,7 @@ const previousPage = () => {
 // Delete a task
 const deleteTask = async (taskId) => {
   try {
-    await axios.delete(`http://127.0.0.1:8000/api/taskservices/task-delete/${taskId}/`);
+    await axios.delete(`${API_BASE_URL}/taskservices/task-delete/${taskId}/`);
     tasks.value = tasks.value.filter(task => task.id !== taskId);
   } catch (err) {
     console.error('Error deleting task:', err);
@@ -262,7 +263,7 @@ const editTask = (task) => {
 // Save edited task
 const saveTask = async () => {
   try {
-    await axios.put(`http://127.0.0.1:8000/api/taskservices/task-update/${editingTask.value.id}/`, editingTask.value);
+    await axios.put(`${API_BASE_URL}/taskservices/task-update/${editingTask.value.id}/`, editingTask.value);
     const index = tasks.value.findIndex(task => task.id === editingTask.value.id);
     if (index !== -1) {
       tasks.value[index] = { ...editingTask.value }; // Update task in the local array
@@ -279,7 +280,7 @@ const handleLogout = async () => {
   try {
     const refreshToken = localStorage.getItem('refresh_token');
     if (refreshToken) {
-      await axios.post('http://127.0.0.1:8000/api/logout/', {
+      await axios.post(`${API_BASE_URL}/logout/`, {
         refresh_token: refreshToken,
       }, {
         headers: {

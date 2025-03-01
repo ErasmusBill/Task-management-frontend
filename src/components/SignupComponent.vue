@@ -2,6 +2,7 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { API_BASE_URL } from './urls';
 
 const router = useRouter();
 
@@ -105,7 +106,7 @@ const handleSignup = async (event) => {
       };
 
       // Make the API call to Django backend
-      const response = await axios.post('http://127.0.0.1:8000/api/create/', userData);
+      const response = await axios.post(`${API_BASE_URL}/create/`, userData);
 
       // Handle successful response
       if (response.status === 201) {

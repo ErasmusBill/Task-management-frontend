@@ -54,6 +54,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { API_BASE_URL } from './urls';
 
 const router = useRouter();
 const newPassword = ref('');
@@ -76,7 +77,7 @@ const handleChangePassword = async () => {
   }
 
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/change-password/', {
+    const response = await axios.post(`${API_BASE_URL}/change-password/`, {
       old_password: oldPassword.value,
       new_password: newPassword.value,
     }, {
