@@ -2,7 +2,7 @@
 import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { API_BASE_URL } from './urls';
+import { API_BASE_URL } from '@/components/urls.js';
 
 // Router instance
 const router = useRouter();
