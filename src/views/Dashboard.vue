@@ -1,7 +1,35 @@
 <template>
   <div class="min-h-screen bg-gray-100 flex flex-col md:flex-row">
+    <!-- Hamburger Menu Button (Mobile Only) -->
+    <button 
+      @click="isSidebarOpen = !isSidebarOpen"
+      class="md:hidden fixed top-4 left-4 z-50 p-2 bg-blue-900 text-white rounded-lg focus:outline-none"
+    >
+      <!-- Modern Hamburger Icon (SVG) -->
+      <svg 
+        class="w-6 h-6" 
+        fill="none" 
+        stroke="currentColor" 
+        viewBox="0 0 24 24" 
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path 
+          stroke-linecap="round" 
+          stroke-linejoin="round" 
+          stroke-width="2" 
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+    </button>
+
     <!-- Sidebar -->
-    <div class="w-full md:w-64 bg-blue-900 text-white shadow-lg">
+    <div 
+      :class="[
+        'w-64 bg-gradient-to-b from-blue-800 to-blue-900 text-white shadow-lg transform transition-transform duration-300 ease-in-out',
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      ]"
+      class="fixed md:relative h-screen z-40"
+    >
       <div class="p-6">
         <h2 class="text-xl font-bold mb-6">Task Manager</h2>
         <nav>
@@ -57,14 +85,19 @@
     </div>
 
     <!-- Main Content -->
-    <div class="flex-1 overflow-x-hidden">
+    <div 
+      :class="[
+        'flex-1 overflow-x-hidden transform transition-transform duration-300 ease-in-out',
+        isSidebarOpen ? 'translate-x-64 md:translate-x-0' : 'translate-x-0'
+      ]"
+    >
       <header class="bg-white shadow-sm p-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div>
             <h1 class="text-2xl font-bold text-gray-800">Task Management Dashboard</h1>
             <p class="text-gray-600">Welcome to your task management system. Use the sidebar to navigate.</p>
           </div>
-          <div class="flex items-center space-x-4">
+          <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
             <div class="text-gray-800 font-semibold">Welcome, {{ loggedInUser }}</div>
             <form @submit.prevent="searchTasks">
               <input 
@@ -114,9 +147,9 @@
         </div>
 
         <!-- Pagination Controls -->
-        <div class="flex justify-between mt-4">
+        <div class="flex flex-col md:flex-row justify-between mt-4 space-y-4 md:space-y-0">
           <button @click="previousPage" :disabled="currentPage <= 1" class="bg-blue-500 text-white px-4 py-2 rounded">Previous</button>
-          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+          <span class="text-center">Page {{ currentPage }} of {{ totalPages }}</span>
           <button @click="nextPage" :disabled="currentPage >= totalPages" class="bg-blue-500 text-white px-4 py-2 rounded">Next</button>
         </div>
       </div>
@@ -169,6 +202,7 @@ const loggedInUser = ref('');
 const userId = localStorage.getItem('user_id'); // Assuming user ID is stored in localStorage
 const currentPage = ref(1); // Current page for pagination
 const totalPages = ref(1); // Total pages based on the API response
+const isSidebarOpen = ref(false); // Toggle state for sidebar
 
 // Status options with colors
 const statusOptions = [
