@@ -38,9 +38,15 @@ const message = ref('');
 const error = ref('');
 
 const verifyEmail = async () => {
-  const token = route.query.token; // Get the token from the URL
+  const token = route.query.token; 
+  if (!token) {
+    error.value = 'Invalid or missing verification token.';
+    loading.value = false;
+    return;
+  }
+
   try {
-    const response = await axios.get(`${API_BASE_URL}/verify-email/${token}/`);
+    const response = await axios.get(`${API_BASE_URL}/verify-email/${token}/`); // Pass token in the URL path
     success.value = true;
     message.value = response.data.message;
 

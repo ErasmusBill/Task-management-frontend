@@ -1,113 +1,3 @@
-<script setup>
-import { ref, reactive, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
-import { API_BASE_URL } from '@/components/urls.js';
-
-// Router instance
-const router = useRouter();
-
-// Create a reactive form state object for login
-const loginForm = reactive({
-  username: '',
-  password: '',
-  errors: {
-    username: '',
-    password: '',
-    server: ''
-  },
-  isSubmitting: false
-});
-
-// Compute completion percentage for form
-const completionPercentage = computed(() => {
-  let completed = 0;
-  let total = 2; 
-  
-  if (loginForm.username.trim()) completed++;
-  if (loginForm.password.length >= 8) completed++;
-  
-  return Math.floor((completed / total) * 100);
-});
-
-// Login form validation function
-const validateLoginForm = () => {
-  loginForm.errors.username = '';
-  loginForm.errors.password = '';
-  loginForm.errors.server = '';
-
-  let isValid = true;
-
-  if (!loginForm.username.trim()) {
-    loginForm.errors.username = 'Username is required';
-    isValid = false;
-  }
-
-  if (!loginForm.password) {
-    loginForm.errors.password = 'Password is required';
-    isValid = false;
-  } else if (loginForm.password.length < 8) {
-    loginForm.errors.password = 'Password must be at least 8 characters';
-    isValid = false;
-  }
-
-  return isValid;
-};
-
-// Handle login submission with Axios
-const handleLogin = async (event) => {
-  event.preventDefault();
-  loginForm.isSubmitting = true;
-  if (!validateLoginForm()) {
-    loginForm.isSubmitting = false;
-    return;
-  }
-
-  try {
-    const response = await axios.post(`${API_BASE_URL}/login/`,
-      {
-        username: loginForm.username,
-        password: loginForm.password,
-      }
-    );
-
-    // Save tokens and user ID to localStorage
-    localStorage.setItem('access_token', response.data.access_token);
-    localStorage.setItem('refresh_token', response.data.refresh_token);
-    localStorage.setItem('user_id', response.data.user_id);
-
-    // Redirect to dashboard
-    router.push('/dashboard'); // Use route name for safety
-  } catch (error) {
-    // Handle errors...
-  } finally {
-    loginForm.isSubmitting = false;
-  }
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</script>
-
 <template>
   <div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl p-8 shadow-xl max-w-md w-full">
@@ -213,3 +103,95 @@ const handleLogin = async (event) => {
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, reactive, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+import { API_BASE_URL } from '@/components/urls.js';
+
+// Router instance
+const router = useRouter();
+
+// Create a reactive form state object for login
+const loginForm = reactive({
+  username: '',
+  password: '',
+  errors: {
+    username: '',
+    password: '',
+    server: ''
+  },
+  isSubmitting: false
+});
+
+// Compute completion percentage for form
+const completionPercentage = computed(() => {
+  let completed = 0;
+  let total = 2; 
+  
+  if (loginForm.username.trim()) completed++;
+  if (loginForm.password.length >= 8) completed++;
+  
+  return Math.floor((completed / total) * 100);
+});
+
+// Login form validation function
+const validateLoginForm = () => {
+  loginForm.errors.username = '';
+  loginForm.errors.password = '';
+  loginForm.errors.server = '';
+
+  let isValid = true;
+
+  if (!loginForm.username.trim()) {
+    loginForm.errors.username = 'Username is required';
+    isValid = false;
+  }
+
+  if (!loginForm.password) {
+    loginForm.errors.password = 'Password is required';
+    isValid = false;
+  } else if (loginForm.password.length < 8) {
+    loginForm.errors.password = 'Password must be at least 8 characters';
+    isValid = false;
+  }
+
+  return isValid;
+};
+
+// Handle login submission with Axios
+const handleLogin = async (event) => {
+  event.preventDefault();
+  loginForm.isSubmitting = true;
+  if (!validateLoginForm()) {
+    loginForm.isSubmitting = false;
+    return;
+  }
+
+  try {
+    const response = await axios.post(`${API_BASE_URL}/login/`, {
+      username: loginForm.username,
+      password: loginForm.password,
+    });
+
+    // Save tokens and user ID to localStorage
+    localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('refresh_token', response.data.refresh_token);
+    localStorage.setItem('user_id', response.data.user_id);
+
+    // Redirect to dashboard
+    router.push('/dashboard'); // Use route name for safety
+  } catch (error) {
+    if (error.response && error.response.status === 403 && error.response.data.error === "Email not verified. Please verify your email to login.") {
+      // Display a message to the user to verify their email
+      loginForm.errors.server = "Please verify your email before logging in.";
+    } else {
+      // Handle other errors
+      loginForm.errors.server = error.response?.data?.error || "An error occurred during login. Please try again.";
+    }
+  } finally {
+    loginForm.isSubmitting = false;
+  }
+};
+</script>
