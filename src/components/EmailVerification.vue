@@ -46,13 +46,13 @@ const verifyEmail = async () => {
   }
 
   try {
-    const response = await axios.get(`${API_BASE_URL}/verify-email/${token}/`); // Pass token in the URL path
+    const response = await axios.get(`${API_BASE_URL}/verify-email/${token}/`); 
     success.value = true;
     message.value = response.data.message;
 
-    // Redirect to the login page after 3 seconds
+  
     setTimeout(() => {
-      router.push({ name: 'login' }); // Replace 'Login' with the name of your login route
+      router.push({ name: 'login' }); 
     }, 3000);
   } catch (err) {
     success.value = false;
@@ -64,9 +64,8 @@ const verifyEmail = async () => {
 
 const resendVerificationEmail = async () => {
   try {
-    // Replace with your API endpoint for resending the verification email
     await axios.post(`${API_BASE_URL}/resend-verification-email/`, {
-      email: route.query.email, // Pass the user's email if available
+      email: route.query.email,
     });
     alert('Verification email resent. Please check your inbox.');
   } catch (err) {
