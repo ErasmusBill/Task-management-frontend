@@ -5,7 +5,7 @@ import AddTask from '@/components/AddTask.vue';
 import ChangePassword from '@/components/ChangePassword.vue';
 import SignupComponent from '@/components/SignupComponent.vue';
 import UpdateUserProfile from '@/components/UpdateUserProfile.vue';
-
+import EmailVerification from '@/components/EmailVerification.vue';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -27,7 +27,7 @@ const router = createRouter({
       meta:{requiresAuth:true}
     },
     {
-      path:'/change-password', // Fixed typo here
+      path:'/change-password', 
       name:'change-password',
       component: ChangePassword,
       meta:{requiresAuth:true}
@@ -42,6 +42,11 @@ const router = createRouter({
       name:'update-profile',
       component:UpdateUserProfile,
       meta:{requiresAuth:true}
+    },
+    {
+      path:'/verify-email',
+      name:'verify-email',
+      component:EmailVerification,
     }
   ],
 });
