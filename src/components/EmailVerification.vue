@@ -83,7 +83,7 @@ const success = ref(false);
 const message = ref('');
 const error = ref('');
 const userEmail = ref('');
-const showDebug = ref(false); // Set to true during development to show debug info
+const showDebug = ref(true); // Set to true during development to show debug info
 const debugToken = ref('');
 const debugEmail = ref('');
 
@@ -117,11 +117,12 @@ const verifyEmail = async () => {
   }
 
   try {
-    // Call the API to verify the email
+    // Use a CORS proxy service to bypass CORS issues
+    const corsProxyUrl = 'https://corsproxy.io/?';
     const apiUrl = `${API_BASE_URL}/verify-email/${token}`;
-    console.log('Calling API:', apiUrl);
+    console.log('Calling API through CORS proxy:', apiUrl);
     
-    const response = await axios.get(apiUrl);
+    const response = await axios.get(`${corsProxyUrl}${encodeURIComponent(apiUrl)}`);
     success.value = true;
     message.value = response.data.message || 'Your email has been successfully verified.';
 
@@ -156,7 +157,11 @@ const resendVerificationEmail = async () => {
     loading.value = true;
     console.log('Resending verification to:', userEmail.value);
     
-    const response = await axios.post(`${API_BASE_URL}/resend-verification-email/`, {
+    // Use a CORS proxy for the resend request as well
+    const corsProxyUrl = 'https://corsproxy.io/?';
+    const apiUrl = `${API_BASE_URL}/resend-verification-email/`;
+    
+    const response = await axios.post(`${corsProxyUrl}${encodeURIComponent(apiUrl)}`, {
       email: userEmail.value
     });
     
