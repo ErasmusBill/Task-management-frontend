@@ -38,40 +38,33 @@
           <div class="space-y-4">
             <div>
               <input 
-                v-model="userEmail" 
-                type="email" 
-                placeholder="Enter your email address" 
+                v-model="pin" 
+                type="text" 
+                placeholder="Enter your verification PIN" 
                 class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <button
+              @click="verifyEmail"
+              class="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+            >
+              Verify Email
+            </button>
+            <button
               @click="resendVerificationEmail"
-              class="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-              :disabled="!isValidEmail"
+              class="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
             >
               Resend Verification Email
             </button>
-            <button
-              @click="goToRegister"
-              class="w-full bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
-            >
-              Back to Registration
-            </button>
           </div>
         </div>
-      </div>
-      
-      <!-- Debug information section (hidden in production) -->
-      <div v-if="showDebug" class="mt-8 p-4 border border-gray-300 rounded-md bg-gray-50">
-        <h3 class="font-bold text-gray-700 mb-2">Debug Information</h3>
-        <pre class="text-xs overflow-auto">Token: {{ debugToken }}\nEmail: {{ debugEmail }}</pre>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { API_BASE_URL } from '@/components/urls.js';
@@ -82,47 +75,23 @@ const loading = ref(true);
 const success = ref(false);
 const message = ref('');
 const error = ref('');
+const pin = ref('');
 const userEmail = ref('');
-const showDebug = ref(true); // Set to true during development to show debug info
-const debugToken = ref('');
-const debugEmail = ref('');
 
-// Email validation
-const isValidEmail = computed(() => {
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailPattern.test(userEmail.value);
-});
-
+// Verify email using the entered PIN
 const verifyEmail = async () => {
-  // Extract token from URL
-  const token = route.params.token;
-  
-  // Extract email from URL (if provided)
-  const emailFromUrl = route.query.email;
-  if (emailFromUrl) {
-    userEmail.value = emailFromUrl;
-    debugEmail.value = emailFromUrl;
-  }
-  
-  // For debugging
-  debugToken.value = token;
-  console.log('Token from URL:', token);
-  console.log('Email from URL:', emailFromUrl);
-
-  // Validate token
-  if (!token || token === 'None' || token === 'undefined') {
-    error.value = 'Invalid or missing verification token. Please check the link in your email.';
-    loading.value = false;
+  if (!pin.value) {
+    error.value = 'Please enter the verification PIN.';
     return;
   }
 
   try {
-    // Use a CORS proxy service to bypass CORS issues
-    const corsProxyUrl = 'https://corsproxy.io/?';
-    const apiUrl = `${API_BASE_URL}/verify-email/${token}`;
-    console.log('Calling API through CORS proxy:', apiUrl);
-    
-    const response = await axios.get(`${corsProxyUrl}${encodeURIComponent(apiUrl)}`);
+    loading.value = true;
+    const response = await axios.post(`${API_BASE_URL}/verify-email/`, {
+      email: userEmail.value,
+      pin: pin.value
+    });
+
     success.value = true;
     message.value = response.data.message || 'Your email has been successfully verified.';
 
@@ -133,12 +102,9 @@ const verifyEmail = async () => {
   } catch (err) {
     console.error('Verification error:', err);
     success.value = false;
-    
-    // Handle different error scenarios
-    if (err.response?.status === 404) {
-      error.value = 'Verification token not found. It may have expired or been used already.';
-    } else if (err.response?.status === 400) {
-      error.value = err.response.data.error || 'Invalid verification token.';
+
+    if (err.response?.status === 400) {
+      error.value = err.response.data.error || 'Invalid or expired verification PIN.';
     } else {
       error.value = 'An error occurred during email verification. Please try again later.';
     }
@@ -147,29 +113,19 @@ const verifyEmail = async () => {
   }
 };
 
+// Resend verification email
 const resendVerificationEmail = async () => {
-  if (!isValidEmail.value) {
-    alert('Please enter a valid email address.');
-    return;
-  }
-
   try {
     loading.value = true;
-    console.log('Resending verification to:', userEmail.value);
-    
-    // Use a CORS proxy for the resend request as well
-    const corsProxyUrl = 'https://corsproxy.io/?';
-    const apiUrl = `${API_BASE_URL}/resend-verification-email/`;
-    
-    const response = await axios.post(`${corsProxyUrl}${encodeURIComponent(apiUrl)}`, {
+    const response = await axios.post(`${API_BASE_URL}/resend-verification-email/`, {
       email: userEmail.value
     });
-    
+
     alert('Verification email has been resent. Please check your inbox and spam folder.');
     console.log('Resend response:', response.data);
   } catch (err) {
     console.error('Resend error:', err);
-    
+
     if (err.response?.status === 404) {
       alert('Email address not found. Please check if you entered the correct email.');
     } else if (err.response?.status === 400) {
@@ -182,24 +138,29 @@ const resendVerificationEmail = async () => {
   }
 };
 
+// Redirect to login page
 const goToLogin = () => {
   router.push({ name: 'login' });
 };
 
-const goToRegister = () => {
-  router.push({ name: 'register' });
-};
-
+// On component mount
 onMounted(() => {
   console.log('Component mounted');
   console.log('Route query parameters:', route.query);
-  
-  // Try to get email from localStorage if not in URL
-  if (!route.query.email && localStorage.getItem('registrationEmail')) {
+
+  // Set email from query parameters or localStorage
+  if (route.query.email) {
+    userEmail.value = route.query.email;
+  } else if (localStorage.getItem('registrationEmail')) {
     userEmail.value = localStorage.getItem('registrationEmail');
-    debugEmail.value = userEmail.value;
   }
-  
-  verifyEmail();
+
+  // Automatically verify if PIN is provided in the URL
+  if (route.query.pin) {
+    pin.value = route.query.pin;
+    verifyEmail();
+  } else {
+    loading.value = false;
+  }
 });
 </script>
