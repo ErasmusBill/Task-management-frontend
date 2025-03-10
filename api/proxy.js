@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     }
     
     try {
-      const apiUrl = `https://task-management-backend-production-3436.up.railway.app/api/verify-email/${token}`;
+      const apiUrl = `https://task-management-backend-production-3436.up.railway.app/api/verify-email/${token}/`;
       
       const response = await fetch(apiUrl, {
         method: 'GET',
