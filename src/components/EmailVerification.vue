@@ -95,7 +95,7 @@ const isValidEmail = computed(() => {
 
 const verifyEmail = async () => {
   // Extract token from URL
-  const token = route.query.token;
+  const token = route.params.token;
   
   // Extract email from URL (if provided)
   const emailFromUrl = route.query.email;

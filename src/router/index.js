@@ -44,9 +44,9 @@ const router = createRouter({
       meta:{requiresAuth:true}
     },
     {
-      path:'/verify-email',
-      name:'verify-email',
-      component:EmailVerification,
+      path: '/verify-email/:token',
+      name: 'verify-email',
+      component: EmailVerification,
     }
   ],
 });
