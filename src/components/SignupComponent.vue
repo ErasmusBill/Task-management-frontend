@@ -111,7 +111,7 @@ const handleSignup = async (event) => {
       // Handle successful response
       if (response.status === 201) {
         alert('Account created successfully!');
-        router.push('/'); // Redirect to the login page
+        router.push('/verify-email'); // Redirect to the login page
       }
     } catch (error) {
       // Handle errors from the API
