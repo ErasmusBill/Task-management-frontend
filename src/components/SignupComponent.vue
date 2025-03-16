@@ -31,8 +31,19 @@ const isValidEmail = (email) => {
   return emailRegex.test(email);
 };
 
+// Validate email using the backend API
+const validateEmailWithAPI = async (email) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/validate-email/`, { email });
+    return response.data.valid;
+  } catch (error) {
+    console.error("Error validating email:", error);
+    return false;
+  }
+};
+
 // Form validation function
-const validateForm = () => {
+const validateForm = async () => {
   // Reset all errors
   Object.keys(formState.errors).forEach((key) => {
     formState.errors[key] = '';
@@ -53,6 +64,12 @@ const validateForm = () => {
   } else if (!isValidEmail(formState.email)) {
     formState.errors.email = 'Please enter a valid email address';
     isValid = false;
+  } else {
+    const isEmailValid = await validateEmailWithAPI(formState.email);
+    if (!isEmailValid) {
+      formState.errors.email = 'Invalid email address';
+      isValid = false;
+    }
   }
 
   // First name validation
@@ -93,7 +110,7 @@ const handleSignup = async (event) => {
   event.preventDefault();
   formState.isSubmitting = true;
 
-  if (validateForm()) {
+  if (await validateForm()) {
     try {
       // Prepare the data for the API request
       const userData = {
@@ -110,8 +127,8 @@ const handleSignup = async (event) => {
 
       // Handle successful response
       if (response.status === 201) {
-        alert('Account created successfully!');
-        router.push('/verify-email'); // Redirect to the login page
+        alert('Account created successfully! Please check your email for the verification PIN.');
+        router.push('/verify-email'); // Redirect to the verification page
       }
     } catch (error) {
       // Handle errors from the API
