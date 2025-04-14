@@ -64,13 +64,14 @@ const validateForm = async () => {
   } else if (!isValidEmail(formState.email)) {
     formState.errors.email = 'Please enter a valid email address';
     isValid = false;
-  } else {
-    const isEmailValid = await validateEmailWithAPI(formState.email);
-    if (!isEmailValid) {
-      formState.errors.email = 'Invalid email address';
-      isValid = false;
-    }
-  }
+   } 
+  //  else {
+  //   const isEmailValid = await validateEmailWithAPI(formState.email);
+  //   if (!isEmailValid) {
+  //     formState.errors.email = 'Invalid email address';
+  //     isValid = false;
+  //   }
+  // }
 
   // First name validation
   if (!formState.firstName.trim()) {
