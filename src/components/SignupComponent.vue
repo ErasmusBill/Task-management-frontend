@@ -32,15 +32,15 @@ const isValidEmail = (email) => {
 };
 
 // Validate email using the backend API
-const validateEmailWithAPI = async (email) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/validate-email/`, { email });
-    return response.data.valid;
-  } catch (error) {
-    console.error("Error validating email:", error);
-    return false;
-  }
-};
+// const validateEmailWithAPI = async (email) => {
+//   try {
+//     const response = await axios.post(`${API_BASE_URL}/validate-email/`, { email });
+//     return response.data.valid;
+//   } catch (error) {
+//     console.error("Error validating email:", error);
+//     return false;
+//   }
+// };
 
 // Form validation function
 const validateForm = async () => {
